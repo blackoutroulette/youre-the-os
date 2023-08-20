@@ -12,6 +12,7 @@ from scenes.main_menu import MainMenu
 from scene_manager import scene_manager
 from game_info import TITLE
 from window_size import WINDOW_SIZE
+from game_solver_logic import game_logic
 
 pygame.init()
 pygame.font.init()
@@ -47,6 +48,11 @@ async def main():
     while True:
         events = []
 
+        # call game solver logic
+        mouse_click_pos = game_logic(screen)
+        if mouse_click_pos is not None:
+            events.append(GameEvent(GameEventType.MOUSE_LEFT_CLICK, {'position': mouse_click_pos}))
+
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_down = True
@@ -78,8 +84,15 @@ async def main():
         scene_manager.current_scene.update(pygame.time.get_ticks(), events)
         scene_manager.current_scene.render()
 
+        # display mouse click position
+        if mouse_click_pos is not None:
+            x, y = mouse_click_pos
+            screen.fill((0, 0, 255), (x, y + 1, 10, 10))
+            pygame.display.flip()
+
         clock.tick(FPS)
 
         await asyncio.sleep(0)
+
 
 asyncio.run(main())
